@@ -16,7 +16,7 @@
   <!--引入three.js三维引擎-->
   <script src="./three.js"></script>
   <script src="./OrbitControls.js"></script>
-  
+
 </head>
 
 <body>
@@ -111,7 +111,7 @@
 
       var mesh1 = new THREE.Mesh(geometry, material); //网格模型对象Mesh
       mesh1.position.set(-c / 2 + nx / 2, 0, 0)
-      
+
       var geometry = new THREE.BoxGeometry(nx, k, g); //创建一个立方体几何对象Geometry
       var mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
 
@@ -128,7 +128,7 @@
       var group = new THREE.Group();
       if (bg) bg.length == 4 && ji.shift();
       return ji.map((w, i) => {
-        if (bg) bg.length == 4  && (i = -i)
+        if (bg) bg.length == 4 && (i = -i)
         var g = (v & w) ? yang() : yin();
         g.position.set(...[0, 0, -i * m - 1.5 * m])
         return g;
@@ -160,7 +160,7 @@
     }
 
     // 六虚
-    function liuxu(bg, r = 100) {
+    function liuxu(bg, r = 150) {
       var group = new THREE.Group();
       wei.forEach((deg, i) => {
         var nx, ny, nz, v = bg[i]
@@ -203,9 +203,9 @@
      * 光源设置
      */
     //点光源
-    var point = new THREE.PointLight(0xffffff);
-    point.position.set(400, 200, 300); //点光源位置
-    scene.add(point); //点光源添加到场景中
+    // var point = new THREE.PointLight(0xffffff);
+    // point.position.set(400, 200, 300); //点光源位置
+    // scene.add(point); //点光源添加到场景中
     //环境光
 
     var ambient = new THREE.AmbientLight(0x444444);
@@ -227,7 +227,7 @@
      * 创建渲染器对象
      */
     var renderer = new THREE.WebGLRenderer(
-      { alpha: true}
+      { alpha: true }
     );
     renderer.setSize(width, height);//设置渲染区域尺寸
     // renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
@@ -240,8 +240,81 @@
     //     '1.png'
     //   );
 
+    var ygroup = new THREE.Group();
 
-    setTimeout(() => render(), 1000)
+
+
+    var lo = new THREE.TextureLoader()
+      .load(
+        '5.jpeg'
+      );
+
+
+    var material = new THREE.MeshPhongMaterial({
+      // color: '#eacd9e',
+      // specular: 'black',
+      // shininess: 12
+      map: lo,
+      transparent: true, // 设置为true，opacity才会生效
+      // opacity: 0.9,
+      // depthWrite: false,
+    }); //材质对象Material
+
+    var box = new THREE.SphereGeometry(5, 40, 40);
+
+    var y1 = new THREE.Mesh(box, material); //网格模型对象Mesh
+    y1.position.set(9, -250, 0);
+    scene.add(y1)
+
+
+    var lo = new THREE.TextureLoader()
+      .load(
+        '4.jpeg'
+      );
+
+    var material = new THREE.MeshPhongMaterial({
+      color: '#fffffe',
+      map: lo,
+
+      transparent: true, // 设置为true，opacity才会生效
+
+    }); //材质对象Material
+
+    var box = new THREE.SphereGeometry(10, 40, 40);
+
+    var y2 = new THREE.Mesh(box, material); //网格模型对象Mesh
+    y2.position.set(0, 245, 0);
+    scene.add(y2)
+
+    var point = new THREE.PointLight('#fdfdfd');
+    point.position.set(0, 245, 50); //点光源位置
+    ygroup.add(point)
+
+    var point = new THREE.PointLight('#fdfdfd');
+    point.position.set(0, 285, -50); //点光源位置
+    ygroup.add(point)
+
+    var point = new THREE.PointLight('#fdfdfd');
+    point.position.set(0, 245, -50); //点光源位置
+    ygroup.add(point)
+
+
+    // var point = new THREE.PointLight('#fdfdfd');
+    // point.position.set(40,40, 0); //点光源位置
+    // scene.add(point); //点光源添加到场景中
+    scene.add(ygroup)
+    ygroup.add(y1, y2);
+
+
+
+    function q() {
+
+
+      ygroup.rotateZ(_deg / 3)
+      render()
+      requestAnimationFrame(q)
+    }
+    q();
     // hj()
     // scene.add(mesh); //网格模型添加到场景中
 
