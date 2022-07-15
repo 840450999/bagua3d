@@ -5,10 +5,10 @@
   <meta charset="UTF-8">
   <title>第一个three.js文件_WebGL三维场景</title>
   <style>
-    body {
+    html {
       margin: 0;
       overflow: hidden;
-      
+      background: url(./bg.png), url(./bg.png), #b59253;
       /* 隐藏body窗口区域滚动条 */
     }
   </style>
@@ -226,17 +226,20 @@
     /**
      * 创建渲染器对象
      */
-    var renderer = new THREE.WebGLRenderer();
+    var renderer = new THREE.WebGLRenderer(
+      { alpha: true}
+    );
     renderer.setSize(width, height);//设置渲染区域尺寸
-    renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
+    // renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
     document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
     //执行渲染操作   指定场景、相机作为参数
 
 
-    scene.background = new THREE.TextureLoader()
-      .load(
-        '1.png'
-      );
+    // scene.background = new THREE.TextureLoader()
+    //   .load(
+    //     '1.png'
+    //   );
+
 
     setTimeout(() => render(), 1000)
     // hj()
