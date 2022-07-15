@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>第一个three.js文件_WebGL三维场景</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      
+      /* 隐藏body窗口区域滚动条 */
+    }
+  </style>
+
+  <!--引入three.js三维引擎-->
+  <script src="./three.js"></script>
+  <script src="./OrbitControls.js"></script>
+  
+</head>
+
+<body>
+  <script type="module">
+
+
+    function _FangWei(arr) {
+      if (typeof arr[0] == "number") {
+        let len = arr[arr.length - 1].toString(2).length
+        arr = arr.map(v => bw(v.toString(2), len, '0'))
+      }
+      let S = 360 / 2,
+        Yi = -360 / arr.length,
+        L = arr.length - 1,
+        Zhong = arr.length / 2;
+      return [].slice.call(arr.slice(0, Zhong).reduce((O, X, I) => (O[I] = parseInt(X, 2) * Yi, O[L - I] = parseInt(X, 2) * Yi + S, O), { length: arr.length }))
+    }
+
+    function bw(str, len, ch) {
+
+      let l = len - str.length,
+        t = '';
+      if (l <= 0) return str;
+
+      while (true) {
+        if (l & 1) t += ch;
+        if (l == 1) return t + str;
+        ch += ch;
+        l = l >> 1;
+      }
+
+
+    }
+
+    let tian = 1 << 2,
+      di = 1 << 1,
+      ren = 1 << 0,
+      ji = tian | di | ren
+
+    function yan(n) {
+      let l = n - 1,
+        arr = [0, 1];
+      while (true) {
+        arr = arr.reduce((arr, v) => arr.concat([v << 1 | 0, v << 1 | 1]), [])
+        if (l == 1) return arr;
+        l -= 1;
+      }
+    }
+
+    let _bg = yan(3);
+    let g64 = yan(6);
+    let g64fw = _FangWei(g64);
+
+    let sixiang = yan(2);
+    let sixiangfw = _FangWei(sixiang);
+
+
+    let _htbg = [2, 7, 6, 0, 1, 4, 3, 5]
+
+
+    let wei = _bg.map(v => (v & tian) ? 360 - 45 * (v - 3) : 0 + 45 * (v))
+    var [c, k, g, m] = [20, 5, 3, 5];
+    var _deg = Math.PI / 180
+
+
+    var scene = new THREE.Scene();
+
+    var [c, k, g, m] = [20, 5, 3, 5];
+
+    var material = new THREE.MeshPhongMaterial({
+      color: 'black',
+      specular: 'black',
+      shininess: 12
+    }); //材质对象Material
+
+
+    var yang = () => {
+      var geometry = new THREE.BoxGeometry(c, k, g); //创建一个立方体几何对象Geometry
+
+      var mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh      
+      var group = new THREE.Group();
+      group.add(mesh);
+
+      return group;
+    }
+
+    var yin = () => {
+
+      var nx = c / 2 - 2
+      var geometry = new THREE.BoxGeometry(nx, k, g); //创建一个立方体几何对象Geometry
+
+
+      var mesh1 = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+      mesh1.position.set(-c / 2 + nx / 2, 0, 0)
+      
+      var geometry = new THREE.BoxGeometry(nx, k, g); //创建一个立方体几何对象Geometry
+      var mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+
+      // mesh.position.set(x - c / 2 + nx * 2, y, z)
+      mesh.position.set(- c / 2 + nx * 2, 0, 0)
+      var group = new THREE.Group();
+      group.add(mesh1, mesh);
+
+      return group
+    }
+
+    var cg = (v, bg) => {
+      var ji = [tian, di, ren];
+      var group = new THREE.Group();
+      if (bg) bg.length == 4 && ji.shift();
+      return ji.map((w, i) => {
+        if (bg) bg.length == 4  && (i = -i)
+        var g = (v & w) ? yang() : yin();
+        g.position.set(...[0, 0, -i * m - 1.5 * m])
+        return g;
+      }).reduce((group, yao, i) => (group.add(yao), group), group)
+    }
+
+    var cos = Math.cos,
+      sin = Math.sin
+
+    var radius = 50;
+    var [x, y, z] = [0, 0, 0]
+
+
+    function cbg(bg, wei, r = 100) {
+      var group = new THREE.Group();
+      wei.forEach((deg, i) => {
+        var nx, ny, nz, v = bg[i]
+        nx = r * sin(deg * _deg)
+        ny = 0;
+        nz = r * cos(deg * _deg)
+
+        var gua = cg(v, bg);
+
+        gua.position.set(...[x + nx, y + ny, z + nz])
+        gua.rotateY(_deg * (deg + 180));
+        group.add(gua)
+      })
+      return group
+    }
+
+    // 六虚
+    function liuxu(bg, r = 100) {
+      var group = new THREE.Group();
+      wei.forEach((deg, i) => {
+        var nx, ny, nz, v = bg[i]
+        nx = (v & ren) ? -r : r;
+        ny = (v & di) ? r : -r;
+        nz = (v & tian) ? -r : r;
+
+        var gua = cg(v);
+
+        gua.position.set(...[x + nx, y + ny, z + nz])
+        // gua.rotateY(_deg * (deg + 180));
+        group.add(gua)
+      })
+      return group
+    }
+
+    var taiyi = yang()
+    scene.add(taiyi);
+
+    var ysixiang = cbg(sixiang, sixiangfw, radius - 25)
+    ysixiang.rotateX(_deg * 90)
+    scene.add(ysixiang);
+    // xtgroup.rotateX(Math.PI / 180 * (45))
+    var xt = cbg(_bg, wei, radius)
+    xt.rotateX(_deg * 90)
+    scene.add(xt);
+
+    var ht = cbg(_htbg, wei, radius + 50)
+    ht.rotateX(_deg * 90)
+    scene.add(ht);
+
+    var y64 = cbg(g64, g64fw, radius + 200)
+    y64.rotateX(_deg * 90)
+    scene.add(y64);
+
+    var _liiuxu = liuxu(_bg)
+    scene.add(_liiuxu)
+
+    /**
+     * 光源设置
+     */
+    //点光源
+    var point = new THREE.PointLight(0xffffff);
+    point.position.set(400, 200, 300); //点光源位置
+    scene.add(point); //点光源添加到场景中
+    //环境光
+
+    var ambient = new THREE.AmbientLight(0x444444);
+    scene.add(ambient);
+    // console.log(scene)
+    // console.log(scene.children)
+    /**
+     * 相机设置
+     */
+    var width = window.innerWidth; //窗口宽度
+    var height = window.innerHeight; //窗口高度
+    var k = width / height; //窗口宽高比
+    var s = 150; //三维场景显示范围控制系数，系数越大，显示的范围越大
+    //创建相机对象
+    var camera = new THREE.OrthographicCamera(-s * k, s * k, s, -s, 1, 1000);
+    camera.position.set(10, 10, 400); //设置相机位置
+    camera.lookAt(scene.position); //设置相机方向(指向的场景对象)
+    /**
+     * 创建渲染器对象
+     */
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(width, height);//设置渲染区域尺寸
+    renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
+    document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+    //执行渲染操作   指定场景、相机作为参数
+
+
+    scene.background = new THREE.TextureLoader()
+      .load(
+        '1.png'
+      );
+
+    setTimeout(() => render(), 1000)
+    // hj()
+    // scene.add(mesh); //网格模型添加到场景中
+
+
+
+
+    function render() {
+      renderer.render(scene, camera);//执行渲染操作
+    }
+    render();
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);//创建控件对象
+    controls.addEventListener('change', render);//监听鼠标、键盘事件
+  </script>
+</body>
+
+</html>
