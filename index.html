@@ -28,15 +28,16 @@
         let len = arr[arr.length - 1].toString(2).length
         arr = arr.map(v => bw(v.toString(2), len, '0'))
       }
+
       let S = 360 / 2,
         Yi = -360 / arr.length,
         L = arr.length - 1,
         Zhong = arr.length / 2;
-      return [].slice.call(arr.slice(0, Zhong).reduce((O, X, I) => (O[I] = parseInt(X, 2) * Yi, O[L - I] = parseInt(X, 2) * Yi + S, O), { length: arr.length }))
+      return [].slice.call(arr.slice(0, Zhong).reduce((O, X, I) => (O[I] = -parseInt(X, 2) * Yi, O[L - I] = -parseInt(X, 2) * Yi + S, O), { length: arr.length }))
     }
 
     function bw(str, len, ch) {
-
+      str = str + '';
       let l = len - str.length,
         t = '';
       if (l <= 0) return str;
@@ -61,7 +62,7 @@
         arr = [0, 1];
       while (true) {
         arr = arr.reduce((arr, v) => arr.concat([v << 1 | 0, v << 1 | 1]), [])
-        if (l == 1) return arr;
+        if (l == 1) return arr.map(v => bw(v.toString(2), n, '0'));
         l -= 1;
       }
     }
@@ -74,10 +75,13 @@
     let sixiangfw = _FangWei(sixiang);
 
 
-    let _htbg = [2, 7, 6, 0, 1, 4, 3, 5]
+
+    let _htbg = [2, 7, 6, 0, 1, 4, 3, 5].map(v => bw(v.toString(2), 3, '0'))
 
 
-    let wei = _bg.map(v => (v & tian) ? 360 - 45 * (v - 3) : 0 + 45 * (v))
+
+    let wei = _FangWei(_bg)
+    console.log(wei)
     var [c, k, g, m] = [20, 5, 3, 5];
     var _deg = Math.PI / 180
 
@@ -124,12 +128,10 @@
     }
 
     var cg = (v, bg) => {
-      var ji = [tian, di, ren];
       var group = new THREE.Group();
-      if (bg) bg.length == 4 && ji.shift();
-      return ji.map((w, i) => {
-        if (bg) bg.length == 4 && (i = -i)
-        var g = (v & w) ? yang() : yin();
+
+      return v.split('').map((w, i) => {
+        var g = (w == 1) ? yang() : yin();
         g.position.set(...[0, 0, -i * m - 1.5 * m])
         return g;
       }).reduce((group, yao, i) => (group.add(yao), group), group)
@@ -144,7 +146,9 @@
 
     function cbg(bg, wei, r = 100) {
       var group = new THREE.Group();
+
       wei.forEach((deg, i) => {
+        console.log(bg[i],deg)
         var nx, ny, nz, v = bg[i]
         nx = r * sin(deg * _deg)
         ny = 0;
@@ -168,7 +172,7 @@
         ny = (v & di) ? r : -r;
         nz = (v & tian) ? -r : r;
 
-        var gua = cg(v);
+        var gua = cg(v, _bg);
 
         gua.position.set(...[x + nx, y + ny, z + nz])
         // gua.rotateY(_deg * (deg + 180));
